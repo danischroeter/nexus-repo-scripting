@@ -13,16 +13,26 @@ import groovy.json.JsonSlurper
 //assert request.repoName: 'repoName parameter is required'
 //assert request.startDate: 'startDate parameter is required, format: yyyy-mm-dd'
 
+class Repo{
+    String name
+    Long componentCount
+
+    Repo(name,componentCount){
+        this.name = name
+        this.componentCount = componentCount
+    }
+}
+
 log.info("Listing repo stats")
 
 repos = repository.repositoryManager.browse().flatten {repo ->
     StorageFacet storageFacet = repo.facet(StorageFacet)
     def tx = storageFacet.txSupplier().get()
-
-        tx.begin()
-        res = repo.name + "->" + tx.countComponents(Query.builder().build(), [repo])
-        tx.commit()
-        res
+    tx.begin()
+    count = tx.countComponents(Query.builder().build(), [repo])
+    res = new Repo(repo.name,count)
+    tx.commit()
+    res
 }
 
 
