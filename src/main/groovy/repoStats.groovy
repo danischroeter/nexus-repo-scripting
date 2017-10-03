@@ -15,20 +15,16 @@ import groovy.json.JsonSlurper
 
 log.info("Listing repo stats")
 
-def repos = repository.repositoryManager.browse().flatten {repository ->
-    repository.name
+repos = repository.repositoryManager.browse().flatten {repo ->
+    StorageFacet storageFacet = repo.facet(StorageFacet)
+    def tx = storageFacet.txSupplier().get()
+
+        tx.begin()
+        res = repo.name + "->" + tx.countComponents(Query.builder().build(), [repo])
+        tx.commit()
+        res
 }
 
-//StorageFacet storageFacet = repo.facet(StorageFacet)
-//def tx = storageFacet.txSupplier().get()
-//
-//tx.begin()
-//
-//Iterable<Asset> assets = tx.
-//        findAssets(Query.builder().where('last_updated > ').param(request.startDate).build(), [repo])
-//def urls = assets.collect { "/repository/${repo.name}/${it.name()}" }
-//
-//tx.commit()
 
 def result = JsonOutput.toJson([
         repos: repos
