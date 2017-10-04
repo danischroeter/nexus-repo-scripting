@@ -9,7 +9,7 @@ assert request.repoName: 'repoName parameter is required'
 assert request.beforeDate: 'beforeDate parameter is required, format: yyyy-mm-dd'
 
 
-log.info("Components to delete for repository: ${request.repoName} as of startDate: ${request.beforeDate}")
+log.info("delete components for repository: ${request.repoName} updated before: ${request.beforeDate}")
 
 def compInfo = { Component c -> "${c.group()}:${c.name()}:${c.version()}[${c.lastUpdated()}]}" }
 
@@ -25,12 +25,14 @@ tx.close()
 if(request.delete == "true"){
     log.info("about to delete " + components.flatten(compInfo))
     for(Component c : components) {
+        log.delete("deleting " + compInfo(c))
         tx2 = storageFacet.txSupplier().get()
         tx2.begin()
         tx2.deleteComponent(c)
         tx2.commit()
         tx2.close()
     }
+    log.info("finished deleting " + components.flatten(compInfo))
 }
 else {
     log.info("components that would be deleted: "+components.size() + "\n"+components.flatten(compInfo))
