@@ -22,6 +22,12 @@ function nxrunscript {
   curl -v -X POST -u $NEXUS_USER:$NEXUS_PWD --header "Content-Type: text/plain" "$NEXUS_SCRIPTING_PATH/$name/run"
 }
 
+function nxrunscriptjarg {
+  name=$1
+  jsonargs=$2
+  curl -v -X POST -u $NEXUS_USER:$NEXUS_PWD --header "Content-Type: text/plain" -d $jsonargs "$NEXUS_SCRIPTING_PATH/$name/run"
+}
+
 # add a script to the repository manager and run it
 function nxaddscript {
   name=$1
